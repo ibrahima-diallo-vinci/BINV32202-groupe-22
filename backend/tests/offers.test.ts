@@ -10,8 +10,8 @@ beforeEach(() => {
   app = createTestApp();
 });
 
-const listOffersAs = (kind: UserKind, id: number) =>
-  request(app).get("/offers").set("Authorization", tokenFor(kind, id));
+const listOffersAs = (kind: UserKind, id: number, query = "") =>
+  request(app).get(`/offers${query}`).set("Authorization", tokenFor(kind, id));
 
 const offerIds = (body: { id: number }[]): number[] => body.map((offer) => offer.id);
 
@@ -32,6 +32,26 @@ describe("GET /offers : accès", () => {
     expect(response.status).toBe(403);
     expect(response.body.error.code).toBe("FORBIDDEN");
   });
+
+  it.each([
+    ["promoteur et signataire", CONTACT.NADIA_CHERIF],
+    ["signataire uniquement", CONTACT.NATHALIE_RENARD],
+    ["promoteur uniquement", CONTACT.LAURA_SIMON],
+  ])("refuse un contact %s (403) même avec un filtre de période", async (_profile, id) => {
+    const response = await listOffersAs("CONTACT", id, "?period=P1");
+
+    expect(response.status).toBe(403);
+    expect(response.body.error.code).toBe("FORBIDDEN");
+  });
+
+  it.each(["", "p1", "P3", "P1&period=P2"])("rejette le filtre period invalide (%s)", async (period) => {
+    const response = await request(app)
+      .get(`/offers?period=${period}`)
+      .set("Authorization", tokenFor("ADMIN", ADMINISTRATOR.ANNE_LECLERCQ));
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("INVALID_QUERY");
+  });
 });
 
 describe("GET /offers : visibilité selon le profil", () => {
@@ -50,6 +70,14 @@ describe("GET /offers : visibilité selon le profil", () => {
     });
   });
 
+  it("filtre les offres d'un administrateur par période", async () => {
+    const response = await listOffersAs("ADMIN", ADMINISTRATOR.ANNE_LECLERCQ, "?period=P1");
+
+    expect(response.status).toBe(200);
+    expect(offerIds(response.body)).toEqual([OFFER.PDF_REPORTS]);
+    expect(response.body.every((offer: { period: string }) => offer.period === "P1")).toBe(true);
+  });
+
   it("ne montre que les offres publiées à un étudiant", async () => {
     const response = await listOffersAs("STUDENT", STUDENT.LUCAS_DUPONT);
 
@@ -62,6 +90,13 @@ describe("GET /offers : visibilité selon le profil", () => {
     expect(response.body.every((o: { status: string }) => o.status === "PUBLISHED")).toBe(true);
   });
 
+  it("combine le filtre de période avec la visibilité des offres publiées pour l'étudiant", async () => {
+    const response = await listOffersAs("STUDENT", STUDENT.LUCAS_DUPONT, "?period=P1");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
   it("montre à un déposant toutes ses offres, quel que soit leur statut", async () => {
     const response = await listOffersAs("CONTACT", CONTACT.MARC_LEJEUNE);
 
@@ -70,6 +105,13 @@ describe("GET /offers : visibilité selon le profil", () => {
       OFFER.BILLING_API,
       OFFER.PDF_REPORTS,
     ]);
+  });
+
+  it("combine le filtre de période avec la visibilité des offres déposées par le contact", async () => {
+    const response = await listOffersAs("CONTACT", CONTACT.MARC_LEJEUNE, "?period=OTHER");
+
+    expect(response.status).toBe(200);
+    expect(offerIds(response.body)).toEqual([OFFER.E2E_TESTS]);
   });
 
   it("ne montre pas à un déposant l'offre d'un collègue de la même entreprise", async () => {
