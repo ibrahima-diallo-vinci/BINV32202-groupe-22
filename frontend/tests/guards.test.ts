@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   isCompany,
   isCompanyList,
+  isApplication,
+  isApplicationList,
   isHealth,
   isOffer,
   isOfferList,
@@ -91,6 +93,36 @@ describe("isOffer", () => {
   it("accepte une offre valide", () => {
     expect(isOffer(offer)).toBe(true);
     expect(isOfferList([offer])).toBe(true);
+  });
+
+  const application = {
+    id: 1,
+    offer: {
+      id: 3,
+      title: "API REST de facturation",
+      companyShortName: "Orbis",
+      academicYear: "2026-2027",
+      period: "P2",
+    },
+    message: null,
+    status: "IN_PROGRESS",
+    appliedAt: "2026-10-04 14:50:00",
+  };
+
+  describe("isApplication", () => {
+    it("valide une candidature et une liste", () => {
+      expect(isApplication(application)).toBe(true);
+      expect(isApplicationList([application])).toBe(true);
+    });
+
+    it.each([
+      ["un statut inconnu", { ...application, status: "ACTIVE" }],
+      ["une période inconnue", { ...application, offer: { ...application.offer, period: "P3" } }],
+      ["un message invalide", { ...application, message: 42 }],
+      ["une offre absente", { ...application, offer: null }],
+    ])("refuse %s", (_case, value) => {
+      expect(isApplication(value)).toBe(false);
+    });
   });
 
   it.each([

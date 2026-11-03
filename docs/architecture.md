@@ -133,6 +133,17 @@ nouvelles.
 | Page et composants | `frontend/src/pages/OffersPage.tsx`, `OfferTable.tsx` |
 | Tests interface | `frontend/tests/OffersPage.test.tsx`, `NavBar.test.tsx` |
 
+### Candidatures des étudiants
+
+| Couche | Fichier |
+|---|---|
+| Routes | `backend/src/controllers/applications.controller.ts` (`GET/POST /applications`, `DELETE /applications/:applicationId`) |
+| Service | `backend/src/services/applications.service.ts` (droits, candidature aux offres publiées, retrait) |
+| Repository | `backend/src/repositories/applications.repository.ts` |
+| Modèles et mapper | `backend/src/models/application.ts`, `backend/src/mappers/application.mapper.ts` |
+| Base de données | `backend/src/db/migrations/002_unique_active_applications.sql` (unicité hors candidatures retirées) |
+| Tests API | `backend/tests/applications.test.ts`, `backend/tests/db/constraints.test.ts` |
+
 ## Tests
 
 - Backend (`backend/tests/`) : Vitest et Supertest sur une base SQLite en mémoire, jamais

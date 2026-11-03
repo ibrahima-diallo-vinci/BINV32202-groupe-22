@@ -106,6 +106,70 @@ describe("OffersPage", () => {
     expect(screen.getByText("Toutes les offres, tous statuts confondus.")).toBeInTheDocument();
   });
 
+  it("permet à un étudiant de candidater avec un message facultatif", async () => {
+    const publishedOffer = {
+      ...offers[0],
+      id: 20,
+      title: "Offre publiée",
+      status: "PUBLISHED",
+    };
+    const createdApplication = {
+      id: 30,
+      offer: {
+        id: publishedOffer.id,
+        title: publishedOffer.title,
+        companyShortName: publishedOffer.companyShortName,
+        academicYear: publishedOffer.academicYear,
+        period: publishedOffer.period,
+      },
+      message: "Mon message",
+      status: "IN_PROGRESS",
+      appliedAt: "2026-11-03 14:00:00",
+    };
+    const fetchMock = stubFetch({
+      "/api/offers": () => Response.json([publishedOffer]),
+      "/api/applications": (_input, init) => {
+        if (init?.method === "POST") return Response.json(createdApplication, { status: 201 });
+        return Response.json([]);
+      },
+    });
+
+    render(<OffersPage user={studentUser} token="jeton" onUnauthorized={vi.fn()} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Candidater" }));
+    fireEvent.change(screen.getByLabelText("Message facultatif"), {
+      target: { value: "Mon message" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
+
+    expect(await screen.findByText("En cours")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Candidater" })).not.toBeInTheDocument();
+    const postCall = fetchMock.mock.calls.find(([, init]) => init?.method === "POST");
+    expect(postCall?.[1]).toMatchObject({
+      method: "POST",
+      headers: { Authorization: "jeton", "Content-Type": "application/json" },
+      body: JSON.stringify({ offerId: 20, message: "Mon message" }),
+    });
+  });
+
+  it("permet d'envoyer une candidature sans message et affiche les doublons refusés par l'API", async () => {
+    const publishedOffer = { ...offers[0], id: 21, status: "PUBLISHED" };
+    const fetchMock = stubFetch({
+      "/api/offers": () => Response.json([publishedOffer]),
+      "/api/applications": (_input, init) =>
+        init?.method === "POST"
+          ? new Response(null, { status: 409 })
+          : Response.json([]),
+    });
+
+    render(<OffersPage user={studentUser} token="jeton" onUnauthorized={vi.fn()} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Candidater" }));
+    fireEvent.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("statut 409");
+    const postCall = fetchMock.mock.calls.find(([, init]) => init?.method === "POST");
+    expect(postCall?.[1]?.body).toBe(JSON.stringify({ offerId: 21 }));
+  });
+
   it("affiche un refus d'accès renvoyé par le backend", async () => {
     stubFetch({ "/api/offers": () => new Response(null, { status: 403 }) });
 

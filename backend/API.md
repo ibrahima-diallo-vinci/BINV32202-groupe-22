@@ -31,6 +31,7 @@ Toute erreur a la même forme :
 | 400 | `INVALID_BODY` | Corps de requête invalide |
 | 401 | `UNAUTHENTICATED` | Session absente, expirée ou invalide ; compte non autorisé à se connecter |
 | 403 | `FORBIDDEN` | Utilisateur connecté, mais sans droit sur la ressource |
+| 409 | `APPLICATION_EXISTS`, `OFFER_NOT_PUBLISHED`, `APPLICATION_NOT_WITHDRAWABLE` | Conflit avec l'état actuel d'une offre ou candidature |
 | 404 | `NOT_FOUND` | Route inconnue |
 | 500 | `INTERNAL_ERROR` | Erreur inattendue du serveur |
 
@@ -172,3 +173,54 @@ récente à la plus ancienne, puis de la plus récente à la plus ancienne.
 - `401` `UNAUTHENTICATED` : session absente ou invalide.
 - `403` `FORBIDDEN` : contact seulement promoteur ou signataire.
 - `400` `INVALID_QUERY` : `period` n'est pas `P1`, `P2` ou `OTHER`, ou apparaît plusieurs fois.
+
+## Candidatures étudiantes
+
+Toutes les routes de candidature sont réservées aux étudiants. Les statuts retournés sont
+`IN_PROGRESS` (en cours), `SELECTED` (retenue), `REJECTED` (non retenue) et `WITHDRAWN`
+(retirée). Les candidatures retirées restent consultables.
+
+### GET /applications
+
+Retourne les candidatures de l'étudiant connecté, de la plus récente à la plus ancienne.
+Chaque élément contient l'identifiant, les informations principales de l'offre, le message,
+le statut et la date de candidature.
+
+- `200` : tableau de candidatures.
+- `401` `UNAUTHENTICATED` : session absente ou invalide.
+- `403` `FORBIDDEN` : l'utilisateur connecté n'est pas un étudiant.
+
+### POST /applications
+
+Candidate à une offre publiée. Un étudiant ne peut avoir qu'une candidature non retirée pour
+une offre. Une candidature retirée peut être remplacée par une nouvelle candidature ; les
+anciennes restent dans l'historique.
+
+#### Requête
+
+- Header `Authorization` obligatoire.
+- Body JSON : `{ "offerId": 3, "message": "Message facultatif" }`. `message` peut être omis,
+  `null` n'est pas accepté ; une chaîne vide ou composée d'espaces est enregistrée comme `null`.
+
+#### Réponses
+
+- `201` : la candidature créée, avec `status: "IN_PROGRESS"`.
+- `400` `INVALID_BODY` : corps invalide, `offerId` n'est pas un entier positif ou `message`
+  n'est pas une chaîne.
+- `401` `UNAUTHENTICATED` : session absente ou invalide.
+- `403` `FORBIDDEN` : l'utilisateur connecté n'est pas un étudiant.
+- `404` `NOT_FOUND` : offre inexistante.
+- `409` `OFFER_NOT_PUBLISHED` : l'offre n'est pas publiée.
+- `409` `APPLICATION_EXISTS` : une candidature non retirée existe déjà pour cette offre.
+
+### DELETE /applications/:applicationId
+
+Retire la candidature de l'étudiant connecté uniquement si son statut est `IN_PROGRESS`.
+Le retrait passe son statut à `WITHDRAWN`.
+
+- `204` : candidature retirée.
+- `400` `INVALID_QUERY` : identifiant invalide.
+- `401` `UNAUTHENTICATED` : session absente ou invalide.
+- `403` `FORBIDDEN` : l'utilisateur connecté n'est pas un étudiant.
+- `404` `NOT_FOUND` : candidature inexistante ou appartenant à un autre étudiant.
+- `409` `APPLICATION_NOT_WITHDRAWABLE` : candidature déjà traitée ou retirée.

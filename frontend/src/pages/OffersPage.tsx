@@ -3,6 +3,7 @@ import EmptyState from "../components/EmptyState.tsx";
 import ErrorState from "../components/ErrorState.tsx";
 import LoadingState from "../components/LoadingState.tsx";
 import OfferTable from "../components/OfferTable.tsx";
+import { useApplications } from "../hooks/useApplications.ts";
 import { useOffers } from "../hooks/useOffers.ts";
 import type { PeriodCode } from "../models/offer.ts";
 import type { User } from "../models/user.ts";
@@ -26,6 +27,17 @@ const OffersPage = ({ user, token, onUnauthorized }: OffersPageProps) => {
     onUnauthorized,
     period === "" ? undefined : period,
   );
+  const applications = useApplications(token, onUnauthorized, user.kind === "STUDENT");
+  const applicationStatuses = new Map<
+    number,
+    (typeof applications.applications)[number]["status"]
+  >();
+  for (const { offer, status } of applications.applications) {
+    const currentStatus = applicationStatuses.get(offer.id);
+    if (currentStatus === undefined || (currentStatus === "WITHDRAWN" && status !== "WITHDRAWN")) {
+      applicationStatuses.set(offer.id, status);
+    }
+  }
 
   const renderContent = () => {
     if (error) return <ErrorState message={error} />;
@@ -36,7 +48,13 @@ const OffersPage = ({ user, token, onUnauthorized }: OffersPageProps) => {
         <p className="result-count">
           {offers.length} offre{offers.length > 1 ? "s" : ""}
         </p>
-        <OfferTable offers={offers} />
+        <OfferTable
+          offers={offers}
+          applicationStatuses={applicationStatuses}
+          onApply={user.kind === "STUDENT" ? applications.apply : undefined}
+          isApplicationsLoading={applications.isLoading || applications.error !== null}
+          isApplying={applications.isMutating}
+        />
       </>
     );
   };
@@ -61,6 +79,10 @@ const OffersPage = ({ user, token, onUnauthorized }: OffersPageProps) => {
         <option value="P2">P2</option>
         <option value="OTHER">Autre</option>
       </select>
+      {applications.mutationError && <ErrorState message={applications.mutationError} />}
+      {user.kind === "STUDENT" && applications.error && (
+        <ErrorState message={applications.error} />
+      )}
       {renderContent()}
     </section>
   );
