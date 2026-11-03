@@ -6,9 +6,9 @@ import { studentUser, stubFetch } from "./helpers/fetchMock.ts";
 
 const TOKEN_KEY = "gesta.token";
 
-const renderApp = () =>
+const renderApp = (initialEntries = ["/"]) =>
   render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={initialEntries}>
       <App />
     </MemoryRouter>,
   );
@@ -53,6 +53,22 @@ describe("App : session", () => {
 
     expect(await screen.findByRole("heading", { name: "Bonjour Mateusz" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Entreprises" })).toBeInTheDocument();
+  });
+
+  it("ouvre la page Mes candidatures pour un étudiant", async () => {
+    localStorage.setItem(TOKEN_KEY, "jeton-mateusz");
+    stubFetch({
+      "/api/auth/me": () => Response.json(studentUser),
+      "/api/applications": () => Response.json([]),
+    });
+
+    renderApp(["/mes-candidatures"]);
+
+    expect(await screen.findByRole("heading", { name: "Mes candidatures" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Mes candidatures" })).toBeInTheDocument();
+    expect(
+      await screen.findByText("Vous n'avez pas encore candidaté à une offre."),
+    ).toBeInTheDocument();
   });
 
   it("oublie une session refusée par le backend", async () => {
