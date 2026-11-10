@@ -80,6 +80,19 @@ describe("GET /applications", () => {
     );
     expect(response.body).toHaveLength(2);
   });
+
+  it.each([
+    ["retenue", STUDENT.MATEUSZ_KOWALSKI, APPLICATION.MATEUSZ_CLOUD_MIGRATION, "SELECTED"],
+    ["non retenue", STUDENT.LEA_MERTENS, APPLICATION.LEA_CLOUD_MIGRATION, "REJECTED"],
+  ] as const)(
+    "retourne une candidature %s avec son statut API",
+    async (_description, studentId, applicationId, status) => {
+      const response = await getApplicationsAs(studentId);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toContainEqual(expect.objectContaining({ id: applicationId, status }));
+    },
+  );
 });
 
 describe("POST /applications", () => {
@@ -171,11 +184,21 @@ describe("POST /applications", () => {
   });
 
   it("refuse les offres qui ne sont pas publiées", async () => {
-    for (const offerId of [OFFER.E2E_TESTS, OFFER.CLOUD_MIGRATION, OFFER.PDF_REPORTS]) {
+    for (const offerId of [
+      OFFER.CONSULTANT_PLANNING,
+      OFFER.E2E_TESTS,
+      OFFER.CLOUD_MIGRATION,
+      OFFER.PDF_REPORTS,
+    ]) {
       const response = await postApplicationAs().send({ offerId });
 
       expect(response.status).toBe(409);
       expect(response.body.error.code).toBe("OFFER_NOT_PUBLISHED");
+
+      const applicationsAfter = await getApplicationsAs();
+      expect(applicationsAfter.body).not.toContainEqual(
+        expect.objectContaining({ offer: expect.objectContaining({ id: offerId }) }),
+      );
     }
   });
 
@@ -234,15 +257,22 @@ describe("DELETE /applications/:applicationId", () => {
     expect(listed.body[0].status).toBe("WITHDRAWN");
   });
 
-  it("refuse de retirer une candidature déjà traitée", async () => {
-    const response = await deleteApplicationAs(
-      APPLICATION.MATEUSZ_CLOUD_MIGRATION,
-      STUDENT.MATEUSZ_KOWALSKI,
-    );
+  it.each([
+    ["retenue", APPLICATION.MATEUSZ_CLOUD_MIGRATION, STUDENT.MATEUSZ_KOWALSKI, "SELECTED"],
+    ["non retenue", APPLICATION.LEA_CLOUD_MIGRATION, STUDENT.LEA_MERTENS, "REJECTED"],
+    ["déjà retirée", APPLICATION.INES_BILLING_API, STUDENT.INES_HADDAD, "WITHDRAWN"],
+  ] as const)(
+    "refuse de retirer une candidature %s sans changer son statut",
+    async (_description, applicationId, studentId, status) => {
+      const response = await deleteApplicationAs(applicationId, studentId);
 
-    expect(response.status).toBe(409);
-    expect(response.body.error.code).toBe("APPLICATION_NOT_WITHDRAWABLE");
-  });
+      expect(response.status).toBe(409);
+      expect(response.body.error.code).toBe("APPLICATION_NOT_WITHDRAWABLE");
+
+      const listed = await getApplicationsAs(studentId);
+      expect(listed.body).toContainEqual(expect.objectContaining({ id: applicationId, status }));
+    },
+  );
 
   it("ne révèle pas la candidature d'un autre étudiant", async () => {
     const response = await deleteApplicationAs(
@@ -252,6 +282,14 @@ describe("DELETE /applications/:applicationId", () => {
 
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe("NOT_FOUND");
+
+    const listed = await getApplicationsAs(STUDENT.LUCAS_DUPONT);
+    expect(listed.body).toContainEqual(
+      expect.objectContaining({
+        id: APPLICATION.LUCAS_FLEET_APP,
+        status: "IN_PROGRESS",
+      }),
+    );
   });
 
   it("valide l'identifiant de la candidature", async () => {
