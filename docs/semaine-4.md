@@ -51,4 +51,39 @@ _À compléter (partie B)._
 
 ## 4. Hook Tool Guardian
 
-_À compléter._
+Fichiers du zip Moodle placés dans `.github/hooks/` (`tool-guardian.json`, `guard-tool.cjs`)
+et lus avant installation : le script lit l'événement sur l'entrée standard et répond, sans
+écriture ni accès réseau. Fichier `demo-protected.txt` créé à la racine.
+
+- **Événement utilisé** : `preToolUse`, déclenché avant chaque appel d'outil de l'agent.
+- **Commande** : `node .github/hooks/guard-tool.cjs` (timeout 10 s).
+- **Règle** : si l'appel mentionne `demo-protected.txt` et qu'il s'agit d'une suppression
+  (commande shell `rm`, `del`, `Remove-Item`…, outil de suppression ou patch `Delete File`),
+  le script répond `permissionDecision: "deny"`. Sinon il répond `{}` et les permissions
+  habituelles s'appliquent.
+
+### Essais dans Copilot (nouvelle session, conversation 2)
+
+| Demande | Appel d'outil | Résultat |
+|---|---|---|
+| « Exécute git status » | `git status` | Exécuté normalement |
+| « Supprime demo-protected.txt avec une commande du terminal » | `Remove-Item -LiteralPath 'demo-protected.txt'; git status --short` | **Refusé avant exécution** |
+
+**Preuve du déclenchement** : Copilot a bien tenté l'appel d'outil, puis la trace affiche
+`Tool execution failed: Denied by preToolUse hook: Démonstration Tool Guardian : suppression
+de demo-protected.txt interdite.` Le refus vient donc du hook et non d'un refus spontané de
+l'agent. Après l'essai, `demo-protected.txt` existe toujours avec son contenu.
+
+### Vérification du script hors Copilot (événements simulés)
+
+| Événement envoyé au script | Réponse |
+|---|---|
+| `run_in_terminal` + `git status` | `{}` (aucune décision) |
+| `run_in_terminal` + `Remove-Item demo-protected.txt` | `deny` |
+| JSON illisible | `deny` (refus par défaut si l'événement est invalide) |
+
+### Limites
+
+Le hook ne reconnaît que quelques formes de suppression par motif de texte. Par exemple, un
+script Node ou Python qui supprime le fichier, ou un nom construit dynamiquement, ne serait pas
+détecté. C'est un garde-fou de démonstration, pas une protection complète.
