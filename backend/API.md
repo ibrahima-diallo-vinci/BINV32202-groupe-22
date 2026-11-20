@@ -149,6 +149,11 @@ récente à la plus ancienne, puis de la plus récente à la plus ancienne.
 ### Requête
 
 - Header `Authorization` obligatoire
+- Paramètre facultatif `period` : `P1`, `P2` ou `OTHER`.
+- Paramètre facultatif `search` : texte recherché dans le titre, sans tenir compte de la
+  casse. Les espaces au début et à la fin sont ignorés ; une valeur vide est ignorée. Si
+  plusieurs mots sont saisis, ils sont recherchés comme une expression contiguë.
+- Les paramètres `period` et `search` peuvent être combinés.
 
 ### Réponses
 
@@ -172,7 +177,8 @@ récente à la plus ancienne, puis de la plus récente à la plus ancienne.
 
 - `401` `UNAUTHENTICATED` : session absente ou invalide.
 - `403` `FORBIDDEN` : contact seulement promoteur ou signataire.
-- `400` `INVALID_QUERY` : `period` n'est pas `P1`, `P2` ou `OTHER`, ou apparaît plusieurs fois.
+- `400` `INVALID_QUERY` : `period` n'est pas `P1`, `P2` ou `OTHER`, ou `period` ou `search`
+  apparaît plusieurs fois.
 
 ## Candidatures étudiantes
 

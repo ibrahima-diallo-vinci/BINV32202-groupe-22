@@ -92,6 +92,47 @@ describe("OffersPage", () => {
     expect(screen.getByText("Tableau de bord de qualité des données")).toBeInTheDocument();
   });
 
+  it("combine la recherche par titre avec le filtre de période", async () => {
+    const matchingOffer = {
+      ...offers[0],
+      title: "API REST de facturation",
+    };
+    const fetchMock = stubFetch({
+      "/api/offers": (input) => {
+        const url = new URL(String(input), "http://localhost");
+        return Response.json(
+          url.searchParams.get("search") === "API" && url.searchParams.get("period") === "P2"
+            ? [matchingOffer]
+            : [],
+        );
+      },
+    });
+
+    render(<OffersPage user={adminUser} token="jeton" onUnauthorized={vi.fn()} />);
+
+    const searchInput = screen.getByRole("searchbox", { name: "Rechercher par titre" });
+    fireEvent.change(searchInput, { target: { value: "  API  " } });
+    fireEvent.change(screen.getByLabelText("Période"), { target: { value: "P2" } });
+
+    expect(await screen.findByText("API REST de facturation")).toBeInTheDocument();
+    const requestUrl = new URL(String(fetchMock.mock.calls.at(-1)?.[0]), "http://localhost");
+    expect(requestUrl.searchParams.get("search")).toBe("API");
+    expect(requestUrl.searchParams.get("period")).toBe("P2");
+  });
+
+  it("affiche un message adapté quand la recherche ne trouve aucune offre", async () => {
+    stubFetch({ "/api/offers": () => Response.json([]) });
+
+    render(<OffersPage user={adminUser} token="jeton" onUnauthorized={vi.fn()} />);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Rechercher par titre" }), {
+      target: { value: "introuvable" },
+    });
+
+    expect(
+      await screen.findByText("Aucune offre ne correspond à votre recherche."),
+    ).toBeInTheDocument();
+  });
+
   it("adapte la description au profil", async () => {
     stubFetch({ "/api/offers": () => Response.json([]) });
 

@@ -11,10 +11,13 @@ export const useOffers = (
   token: string,
   onUnauthorized: () => void,
   period?: PeriodCode,
+  search = "",
 ) => {
+  const normalizedSearch = search.trim();
   const [result, setResult] = useState<{
     token: string;
     period: PeriodCode | undefined;
+    search: string;
     offers: Offer[];
     error: string | null;
   } | null>(null);
@@ -22,9 +25,11 @@ export const useOffers = (
   useEffect(() => {
     const controller = new AbortController();
 
-    getOffers(token, period, controller.signal)
+    getOffers(token, period, normalizedSearch, controller.signal)
       .then((data) => {
-        if (!controller.signal.aborted) setResult({ token, period, offers: data, error: null });
+        if (!controller.signal.aborted) {
+          setResult({ token, period, search: normalizedSearch, offers: data, error: null });
+        }
       })
       .catch((reason: unknown) => {
         if (controller.signal.aborted) return;
@@ -34,6 +39,7 @@ export const useOffers = (
           setResult({
             token,
             period,
+            search: normalizedSearch,
             offers: [],
             error: reason instanceof Error ? reason.message : "Erreur inconnue",
           });
@@ -41,9 +47,13 @@ export const useOffers = (
       });
 
     return () => controller.abort();
-  }, [token, onUnauthorized, period]);
+  }, [token, onUnauthorized, period, normalizedSearch]);
 
-  const hasCurrentResult = result !== null && result.token === token && result.period === period;
+  const hasCurrentResult =
+    result !== null &&
+    result.token === token &&
+    result.period === period &&
+    result.search === normalizedSearch;
   return {
     offers: hasCurrentResult ? result.offers : [],
     isLoading: !hasCurrentResult,

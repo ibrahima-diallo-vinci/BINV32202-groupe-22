@@ -59,6 +59,28 @@ const applications = [
 ];
 
 describe("ApplicationsPage", () => {
+  it("affiche un état vide quand l'étudiant n'a pas encore candidaté", async () => {
+    stubFetch({ "/api/applications": () => Response.json([]) });
+
+    render(<ApplicationsPage token="jeton" onUnauthorized={vi.fn()} />);
+
+    expect(
+      await screen.findByText("Vous n'avez pas encore candidaté à une offre."),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  });
+
+  it("affiche une erreur et aucun tableau si le chargement des candidatures échoue", async () => {
+    stubFetch({ "/api/applications": () => new Response(null, { status: 500 }) });
+
+    render(<ApplicationsPage token="jeton" onUnauthorized={vi.fn()} />);
+
+    expect(
+      await screen.findByText("Chargement des candidatures impossible (statut 500)"),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  });
+
   it("affiche les candidatures, leurs statuts et le retrait seulement pour celles en cours", async () => {
     stubFetch({ "/api/applications": () => Response.json(applications) });
 
