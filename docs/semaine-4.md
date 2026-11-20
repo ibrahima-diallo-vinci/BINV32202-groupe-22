@@ -43,12 +43,92 @@ du setup, puis a réussi (23/23) à la relance. L'environnement de test est donc
 
 ## 2. TDD — recherche d'offres par titre (EF-30)
 
-_À compléter (partie B)._
+Le skill `test-driven-development` de Superpowers a été installé dans `.github/skills/test-driven-development/`, avec `SKILL.md`, `writing-good-tests.md` et `LICENSE`.
+
+Une consigne de validation obligatoire avant l'implémentation a été ajoutée dans `SKILL.md`, ainsi qu'une instruction de déclenchement automatique dans `.github/copilot-instructions.md`.
+
+Après `/skills reload` (14 skills chargés), une nouvelle conversation Copilot a été ouverte. La demande EF-30 a été formulée sans appeler explicitement le skill et sans demander de commencer par les tests.
+
+**Copilot a automatiquement lu le skill TDD**, puis `writing-good-tests.md`, avant de préparer les tests.
+
+### Phase RED — tests avant implémentation
+
+Sept tests ont été ajoutés : cinq tests backend et deux tests frontend.
+
+| Cas testé | Résultat avant implémentation |
+|---|---|
+| Recherche insensible à la casse et espaces périphériques | Échec : l'API renvoie toutes les offres |
+| Recherche de plusieurs mots comme expression entière | Échec : le filtre est ignoré |
+| Recherche composée uniquement d'espaces | Réussite : les offres accessibles sont affichées |
+| Combinaison recherche et période | Échec : seule la période est filtrée |
+| Recherche étudiant et visibilité des offres | Échec : la recherche est ignorée, mais la visibilité reste respectée |
+| Champ de recherche et combinaison avec la période dans l'interface | Échec : le champ de recherche n'existe pas |
+| Message lorsqu'aucune offre ne correspond | Échec : le champ de recherche n'existe pas |
+
+**Résultats RED :**
+- Backend : 4 nouveaux tests en échec, 21 tests réussis.
+- Frontend : 2 nouveaux tests en échec, 7 tests réussis.
+
+Les échecs provenaient de l'absence de la fonctionnalité et non d'erreurs de syntaxe. Le test des espaces seuls réussissait déjà, car le paramètre de recherche était ignoré.
+
+Copilot s'est arrêté avant de modifier le code applicatif et a demandé une validation explicite.
+
+### Validation des tests
+
+Avant de donner mon accord, j'ai demandé à Copilot de présenter les sept tests, leurs assertions et leurs messages d'échec exacts.
+
+Les résultats correspondaient aux règles EF-30. J'ai donc validé le lot de tests pour autoriser l'implémentation.
+
+### Phase GREEN — implémentation
+
+Copilot a ajouté la recherche dans le frontend et le backend en conservant l'architecture existante.
+
+Après l'implémentation, les tests ciblés ont réussi :
+- Backend : 25/25 tests.
+- Frontend : 9/9 tests.
+
+La conversation complète est conservée dans `docs/semaine-4/conversation-3.md`.
 
 ## 3. Recherche — cas essayés et `npm run check`
 
-_À compléter (partie B)._
+La fonctionnalité EF-30 permet de rechercher les offres de stage par titre.
 
+### Fonctionnalités vérifiées par les tests
+
+- Recherche d'une sous-chaîne du titre sans distinction entre majuscules et minuscules.
+- Suppression des espaces au début et à la fin de la recherche.
+- Recherche vide : affichage des offres normalement accessibles.
+- Recherche sans correspondance : liste vide et message adapté.
+- Recherche de plusieurs mots comme expression entière.
+- Combinaison avec le filtre par période.
+- Conservation des règles de visibilité des offres publiées pour les étudiants.
+
+La recherche approximative et le traitement particulier des accents sont hors périmètre.
+
+### Essai dans le navigateur
+
+L'application a été lancée avec `npm run dev`.
+
+Au premier lancement, le backend ne démarrait pas car `JWT_SECRET` était absent ou trop court. La commande `npm run setup` a permis de corriger le problème.
+
+Après redémarrage, la connexion de démonstration était accessible. La recherche a été essayée dans le navigateur avec un compte étudiant, notamment avec un titre existant et une recherche sans correspondance. Le fonctionnement a été confirmé.
+
+### Vérification globale
+
+Copilot a exécuté `npm.cmd run check` avec succès :
+
+| Vérification | Résultat |
+|---|---|
+| Lint | Réussi |
+| TypeScript | Réussi |
+| Tests backend | 147/147 réussis |
+| Tests frontend | 63/63 réussis |
+| Build | Réussi |
+| `git diff --check` | Aucune erreur |
+
+**Total : 210 tests réussis.**
+
+Aucun problème fonctionnel restant n'a été signalé à l'issue des vérifications.
 ## 4. Hook Tool Guardian
 
 Fichiers du zip Moodle placés dans `.github/hooks/` (`tool-guardian.json`, `guard-tool.cjs`)

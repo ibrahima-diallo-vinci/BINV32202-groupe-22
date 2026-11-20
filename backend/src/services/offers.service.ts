@@ -17,9 +17,17 @@ const visibilityFilter = (viewer: User): OfferFilter => {
 };
 
 export const createOffersService = (repository: OffersRepository) => ({
-  listOffers: (viewer: User, period?: OfferFilter["period"]): Offer[] =>
+  listOffers: (
+    viewer: User,
+    period?: OfferFilter["period"],
+    search?: OfferFilter["search"],
+  ): Offer[] =>
     repository
-      .findAll({ ...visibilityFilter(viewer), ...(period === undefined ? {} : { period }) })
+      .findAll({
+        ...visibilityFilter(viewer),
+        ...(period === undefined ? {} : { period }),
+        ...(search === undefined ? {} : { search }),
+      })
       .map(toOffer),
 });
 

@@ -40,3 +40,5 @@ The frontend follows the course MVVM structure: pages compose reusable component
 - Demo login is intentionally not real authentication and must remain development-only; the backend refuses to start with demo auth enabled in production.
 
 The project is intentionally incomplete relative to its requirements. Check `README.md` for what is implemented and `docs/cdc_gesta_developpement.md` for the requirements before assuming a feature exists or extending its scope.
+
+Pour tout ajout de fonctionnalité ou correction de bug, lis et applique .github/skills/test-driven-development/SKILL.md avant de modifier le code de l’application. Écris et exécute les tests d’abord, présente-les, puis attends leur validation explicite avant l’implémentation. Cette règle ne concerne pas les demandes d’explication ou de documentation seules.

@@ -139,3 +139,60 @@ describe("GET /offers : visibilité selon le profil", () => {
     );
   });
 });
+
+describe("GET /offers : recherche par titre", () => {
+  it("recherche une sous-chaîne sans casse et ignore les espaces périphériques", async () => {
+    const response = await listOffersAs(
+      "ADMIN",
+      ADMINISTRATOR.ANNE_LECLERCQ,
+      "?search=%20rEsT%20",
+    );
+
+    expect(response.status).toBe(200);
+    expect(offerIds(response.body)).toEqual([OFFER.BILLING_API]);
+  });
+
+  it("recherche plusieurs mots comme une expression contiguë", async () => {
+    const response = await listOffersAs(
+      "ADMIN",
+      ADMINISTRATOR.ANNE_LECLERCQ,
+      "?search=API%20facturation",
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
+  it("affiche toutes les offres accessibles si la recherche ne contient que des espaces", async () => {
+    const response = await listOffersAs(
+      "ADMIN",
+      ADMINISTRATOR.ANNE_LECLERCQ,
+      "?search=%20%20",
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(10);
+  });
+
+  it("combine la recherche par titre avec le filtre de période", async () => {
+    const response = await listOffersAs(
+      "ADMIN",
+      ADMINISTRATOR.ANNE_LECLERCQ,
+      "?search=API&period=P1",
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
+  it("ne révèle pas à un étudiant une offre non publiée correspondant à la recherche", async () => {
+    const response = await listOffersAs(
+      "STUDENT",
+      STUDENT.LUCAS_DUPONT,
+      "?search=portail",
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+});
