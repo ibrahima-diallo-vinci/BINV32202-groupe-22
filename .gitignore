@@ -16,3 +16,6 @@ env/*.env
 # Système et éditeurs
 .DS_Store
 *.log
+
+# Traces locales de Playwright MCP
+.playwright-mcp/
