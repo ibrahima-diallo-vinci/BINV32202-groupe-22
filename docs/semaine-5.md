@@ -92,11 +92,57 @@ Conversations : `docs/semaine-5/conversation-1.md` et `docs/semaine-5/conversati
 
 ## 3. Playwright Test
 
-_À compléter (partie B)._
+Playwright Test a été installé comme dépendance de développement, avec TypeScript et le
+navigateur Chromium. La configuration `playwright.config.ts` utilise `testDir: './e2e'`,
+`baseURL: 'http://localhost:5173/'` et le seul projet Chromium. Le spec
+[`e2e/recherche-offres/recherche-offres.spec.ts`](../e2e/recherche-offres/recherche-offres.spec.ts)
+contient deux tests nommés avec le numéro de leur scénario.
+
+Chaque test utilise sa propre page, se connecte par l'interface en choisissant Lucas Dupont,
+ouvre « Offres » et utilise le champ accessible « Rechercher par titre ».
+
+- **Scénario 1** : saisit `application`, attend exactement « 1 offre », puis vérifie que le
+  tableau ne contient que la ligne « Application React de gestion de flotte ». Il vérifie
+  également l'absence de « Migration d'une application vers le cloud » (non publiée) et des
+  trois autres offres publiées.
+- **Scénario 2** : saisit `blockchain`, attend exactement « Aucune offre ne correspond à
+  votre recherche. », puis vérifie l'absence de tableau et de compteur.
+
+Les sélecteurs s'appuient sur les rôles, noms accessibles et libellés exacts. La connexion
+est refaite dans chaque test ; aucune donnée n'est modifiée, ce qui rend les scénarios
+indépendants de leur ordre et répétables.
+
+Les premières tentatives manuelles n'ont pas pu démarrer car le frontend était inaccessible
+sur le port 5173. Après redémarrage de l'application, les tests Playwright sont passés lors
+de deux exécutions successives :
+
+| Exécution | Résultat |
+|---|---|
+| 1 | 2/2 tests réussis en 3,4 s |
+| 2 | 2/2 tests réussis en 2,2 s |
+
+`npm run check` a également réussi : lint, typecheck, build, 147 tests backend et 63 tests
+frontend.
 
 ## 4. Vérification par un défaut temporaire
 
-_À compléter (partie B)._
+Pour vérifier que les tests détectent réellement une régression, le filtrage par titre a
+été temporairement désactivé dans
+[`backend/src/repositories/offers.repository.ts`](../backend/src/repositories/offers.repository.ts).
+Les tests Playwright ont alors échoué comme prévu :
+
+- **Scénario 1** : échec à la ligne 17, car le compteur attendu « 1 offre » n'apparaissait
+  pas ;
+- **Scénario 2** : échec à la ligne 61, car le message attendu « Aucune offre ne correspond
+  à votre recherche. » n'apparaissait pas.
+
+Le prédicat de recherche a ensuite été restauré. Après restauration, les deux tests ont
+réussi (2/2 en 2,0 s) et `git diff` ne montrait aucun changement dans
+`offers.repository.ts`. Les tests E2E n'ont pas été modifiés pour provoquer ou masquer les
+échecs.
+
+Lors de l'installation, des erreurs temporaires `ENOSPC` sont survenues. L'installation a
+finalement abouti ; les deux exécutions Playwright et `npm run check` ont ensuite réussi.
 
 ## 5. Comparaison MCP / Playwright Test
 
