@@ -1,0 +1,119 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]: Gesta
+  - note [ref=e5]: Mode démo — connexion sans mot de passe, réservée au développement local.
+  - main [ref=e6]:
+    - generic [ref=e7]:
+      - heading "Connexion de démonstration" [level=1] [ref=e8]
+      - paragraph [ref=e9]: "Choisissez un utilisateur fictif. Il n'y a pas de mot de passe : ce mode remplace, en développement local uniquement, la connexion par lien envoyé par e-mail."
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - heading "Administrateurs" [level=2] [ref=e12]
+          - list [ref=e13]:
+            - listitem [ref=e14]:
+              - button [ref=e15] [cursor=pointer]:
+                - strong [ref=e16]: Anne Leclercq
+            - listitem [ref=e17]:
+              - button [ref=e18] [cursor=pointer]:
+                - strong [ref=e19]: Philippe Moreau
+        - generic [ref=e20]:
+          - heading "Étudiants" [level=2] [ref=e21]
+          - list [ref=e22]:
+            - listitem [ref=e23]:
+              - button [ref=e24] [cursor=pointer]:
+                - strong [ref=e25]: Louis Claes
+            - listitem [ref=e26]:
+              - button [ref=e27] [cursor=pointer]:
+                - strong [ref=e28]: Aminata Diallo
+            - listitem [ref=e29]:
+              - button [ref=e30] [cursor=pointer]:
+                - strong [ref=e31]: Lucas Dupont
+            - listitem [ref=e32]:
+              - button [ref=e33] [cursor=pointer]:
+                - strong [ref=e34]: Youssef El Amrani
+            - listitem [ref=e35]:
+              - button [ref=e36] [cursor=pointer]:
+                - strong [ref=e37]: Inès Haddad
+            - listitem [ref=e38]:
+              - button [ref=e39] [cursor=pointer]:
+                - strong [ref=e40]: Dmytro Kovalenko
+            - listitem [ref=e41]:
+              - button [ref=e42] [cursor=pointer]:
+                - strong [ref=e43]: Mateusz Kowalski
+            - listitem [ref=e44]:
+              - button [ref=e45] [cursor=pointer]:
+                - strong [ref=e46]: Léa Mertens
+            - listitem [ref=e47]:
+              - button [ref=e48] [cursor=pointer]:
+                - strong [ref=e49]: Ioana Popescu
+        - generic [ref=e50]:
+          - heading "Contacts d'entreprise" [level=2] [ref=e51]
+          - list [ref=e52]:
+            - listitem [ref=e53]:
+              - button "Mehdi Alaoui Hexagone · promoteur" [ref=e54] [cursor=pointer]:
+                - strong [ref=e55]: Mehdi Alaoui
+                - generic [ref=e56]: Hexagone · promoteur
+            - listitem [ref=e57]:
+              - button "Nadia Cherif Orbis · promoteur, signataire" [ref=e58] [cursor=pointer]:
+                - strong [ref=e59]: Nadia Cherif
+                - generic [ref=e60]: Orbis · promoteur, signataire
+            - listitem [ref=e61]:
+              - button "Isabelle Collin Brikk · déposant, promoteur" [ref=e62] [cursor=pointer]:
+                - strong [ref=e63]: Isabelle Collin
+                - generic [ref=e64]: Brikk · déposant, promoteur
+            - listitem [ref=e65]:
+              - button "Thomas Dubois Lumen Data · signataire" [ref=e66] [cursor=pointer]:
+                - strong [ref=e67]: Thomas Dubois
+                - generic [ref=e68]: Lumen Data · signataire
+            - listitem [ref=e69]:
+              - button "Claire Dumont Lumen Digital · déposant" [ref=e70] [cursor=pointer]:
+                - strong [ref=e71]: Claire Dumont
+                - generic [ref=e72]: Lumen Digital · déposant
+            - listitem [ref=e73]:
+              - button "Elena Ivanova Pixelune · promoteur" [ref=e74] [cursor=pointer]:
+                - strong [ref=e75]: Elena Ivanova
+                - generic [ref=e76]: Pixelune · promoteur
+            - listitem [ref=e77]:
+              - button "Pieter Janssens Cobalt · déposant, promoteur, signataire" [ref=e78] [cursor=pointer]:
+                - strong [ref=e79]: Pieter Janssens
+                - generic [ref=e80]: Cobalt · déposant, promoteur, signataire
+            - listitem [ref=e81]:
+              - button "Julien Lambert Lumen Data, Lumen Digital · déposant, promoteur, signataire" [ref=e82] [cursor=pointer]:
+                - strong [ref=e83]: Julien Lambert
+                - generic [ref=e84]: Lumen Data, Lumen Digital · déposant, promoteur, signataire
+            - listitem [ref=e85]:
+              - button "Sarah Lambotte Vertigo · déposant, promoteur" [ref=e86] [cursor=pointer]:
+                - strong [ref=e87]: Sarah Lambotte
+                - generic [ref=e88]: Vertigo · déposant, promoteur
+            - listitem [ref=e89]:
+              - button "Marc Lejeune Orbis · déposant" [ref=e90] [cursor=pointer]:
+                - strong [ref=e91]: Marc Lejeune
+                - generic [ref=e92]: Orbis · déposant
+            - listitem [ref=e93]:
+              - button "Antoine Leroy Datavia · déposant" [ref=e94] [cursor=pointer]:
+                - strong [ref=e95]: Antoine Leroy
+                - generic [ref=e96]: Datavia · déposant
+            - listitem [ref=e97]:
+              - button "Caroline Michel Hexagone · déposant" [ref=e98] [cursor=pointer]:
+                - strong [ref=e99]: Caroline Michel
+                - generic [ref=e100]: Hexagone · déposant
+            - listitem [ref=e101]:
+              - button "Fatou Ndiaye Datavia · promoteur, signataire" [ref=e102] [cursor=pointer]:
+                - strong [ref=e103]: Fatou Ndiaye
+                - generic [ref=e104]: Datavia · promoteur, signataire
+            - listitem [ref=e105]:
+              - button "Piotr Nowak Nexalis · déposant" [ref=e106] [cursor=pointer]:
+                - strong [ref=e107]: Piotr Nowak
+                - generic [ref=e108]: Nexalis · déposant
+            - listitem [ref=e109]:
+              - button "Olivier Pirard Pixelune · déposant" [ref=e110] [cursor=pointer]:
+                - strong [ref=e111]: Olivier Pirard
+                - generic [ref=e112]: Pixelune · déposant
+            - listitem [ref=e113]:
+              - button "Nathalie Renard Lumen · signataire" [ref=e114] [cursor=pointer]:
+                - strong [ref=e115]: Nathalie Renard
+                - generic [ref=e116]: Lumen · signataire
+            - listitem [ref=e117]:
+              - button "Laura Simon Nexalis · promoteur" [ref=e118] [cursor=pointer]:
+                - strong [ref=e119]: Laura Simon
+                - generic [ref=e120]: Nexalis · promoteur
