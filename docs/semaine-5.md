@@ -146,4 +146,27 @@ finalement abouti ; les deux exécutions Playwright et `npm run check` ont ensui
 
 ## 5. Comparaison MCP / Playwright Test
 
-_À compléter ensemble._
+### 1. Que permet Playwright MCP dans la conversation avec l'agent ? Quelle action précise avez-vous vu passer par un outil MCP ?
+
+Playwright MCP permet à l'agent d'explorer et de piloter le navigateur pendant la conversation :
+naviguer, lire un instantané d'accessibilité, cliquer et saisir du texte. Dans notre essai,
+`browser_snapshot` a fourni les références des éléments de la page, puis l'appel
+`browser_type` a saisi `application` dans le champ « Rechercher par titre » (`e140`). L'agent
+a ensuite observé le résultat dans un nouvel instantané.
+
+### 2. Qu'apportent les scripts Playwright Test que le compte rendu d'un test par MCP n'apporte pas ?
+
+Le spec conserve les étapes et les assertions comme tests exécutables. Il vérifie
+automatiquement le compteur exact, le contenu et le nombre de lignes du tableau, l'absence
+des autres offres, ainsi que l'état vide et son message exact. Les deux tests ont pu être
+relancés avec les mêmes attentes : ils ont réussi deux fois, échoué quand le filtre a été
+désactivé, puis réussi après sa restauration. Le compte rendu MCP décrit les observations
+d'une exploration, tandis que le script fournit cette vérification répétable.
+
+### 3. Dans quel cas préféreriez-vous une exploration interactive avec MCP ? Dans quel cas préféreriez-vous un test automatisé ?
+
+Nous choisirions MCP pour explorer une interface, découvrir ses éléments et observer un
+parcours en direct. Nous choisirions Playwright Test pour rejouer régulièrement des scénarios
+définis et vérifier leurs assertions sans dépendre d'un compte rendu manuel. Dans cette
+séance, MCP a servi à explorer le scénario 1 ; Playwright Test couvre les scénarios 1 et 2,
+y compris la régression provoquée par la désactivation du filtre.
